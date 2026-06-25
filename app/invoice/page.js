@@ -407,12 +407,12 @@ export default function InvoicePage() {
                 <div key={i}>
                   {/* Deskripsi */}
                   <span className={styles.fieldCell}
-                    style={{ top: `${topPct}%`, left: '11%', right: '55%' }}>
+                    style={{ top: `${topPct}%`, left: '8.5%', right: '30%' }}>
                     {item.deskripsi}
                   </span>
                   {/* Harga */}
                   <span className={styles.fieldCellRight}
-                    style={{ top: `${topPct}%`, right: '37%', width: '12%' }}>
+                    style={{ top: `${topPct}%`, right: '40%', width: '12%' }}>
                     {item.harga ? toRupiah(parseNum(item.harga)) : ''}
                   </span>
                   {/* Kuantitas */}
