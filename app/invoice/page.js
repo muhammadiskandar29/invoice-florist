@@ -422,7 +422,7 @@ export default function InvoicePage() {
                   </span>
                   {/* Total */}
                   <span className={styles.fieldCellRight}
-                    style={{ top: `${topPct}%`, right: '9%', width: '11%' }}>
+                    style={{ top: `${topPct}%`, right: '6.5%', width: '11%' }}>
                     {item.harga ? toRupiah(parseNum(item.harga) * parseNum(item.kuantitas)) : ''}
                   </span>
                 </div>
