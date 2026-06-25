@@ -407,12 +407,12 @@ export default function InvoicePage() {
                 <div key={i}>
                   {/* Deskripsi */}
                   <span className={styles.fieldCell}
-                    style={{ top: `${topPct}%`, left: '9%', right: '48%' }}>
+                    style={{ top: `${topPct}%`, left: '11%', right: '55%' }}>
                     {item.deskripsi}
                   </span>
                   {/* Harga */}
                   <span className={styles.fieldCellRight}
-                    style={{ top: `${topPct}%`, right: '36%', width: '13%' }}>
+                    style={{ top: `${topPct}%`, right: '37%', width: '12%' }}>
                     {item.harga ? toRupiah(parseNum(item.harga)) : ''}
                   </span>
                   {/* Kuantitas */}
@@ -422,7 +422,7 @@ export default function InvoicePage() {
                   </span>
                   {/* Total */}
                   <span className={styles.fieldCellRight}
-                    style={{ top: `${topPct}%`, right: '7.5%', width: '11%' }}>
+                    style={{ top: `${topPct}%`, right: '9%', width: '11%' }}>
                     {item.harga ? toRupiah(parseNum(item.harga) * parseNum(item.kuantitas)) : ''}
                   </span>
                 </div>
@@ -430,22 +430,22 @@ export default function InvoicePage() {
             })}
 
             {/* ── 7. Sub Total value ── */}
-            <div className={styles.fieldTotalVal} style={{ top: '55.1%' }}>
+            <div className={styles.fieldTotalVal} style={{ top: '55.1%', left: '78.7%' }}>
               {toRupiah(subTotalItems) || '0'}
             </div>
 
             {/* ── 8. Ongkir value ── */}
-            <div className={styles.fieldTotalVal} style={{ top: '57.6%' }}>
+            <div className={styles.fieldTotalVal} style={{ top: '57.6%', left: '78.7%' }}>
               {ongkirNum > 0 ? toRupiah(ongkirNum) : '-'}
             </div>
 
             {/* ── 9. DP value ── */}
-            <div className={styles.fieldTotalVal} style={{ top: '60.2%' }}>
+            <div className={styles.fieldTotalVal} style={{ top: '60.2%', left: '78.7%' }}>
               {dpNum > 0 ? toRupiah(dpNum) : '-'}
             </div>
 
             {/* ── 10. Grand Total value (white text on olive bar) ── */}
-            <div className={styles.fieldGrandTotal} style={{ top: '63.3%', left: '78.0%' }}>
+            <div className={styles.fieldGrandTotal} style={{ top: '63.3%', left: '78.7%' }}>
               {toRupiah(grandTotal) || '0'}
             </div>
 
