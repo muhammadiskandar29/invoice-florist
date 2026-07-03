@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './SidebarLayout.module.css';
 
-export default function SidebarLayout({ children, currentView, onViewChange }) {
+export default function SidebarLayout({ children, currentView, onViewChange, onNewInvoice }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -76,7 +76,11 @@ export default function SidebarLayout({ children, currentView, onViewChange }) {
                 <button
                   className={`${styles.navItem} ${item.active ? styles.active : ''}`}
                   onClick={() => {
-                    if (onViewChange) onViewChange(item.id);
+                    if (item.id === 'form' && onNewInvoice) {
+                      onNewInvoice();
+                    } else if (onViewChange) {
+                      onViewChange(item.id);
+                    }
                     setIsOpen(false);
                   }}
                 >

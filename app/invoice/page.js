@@ -171,18 +171,16 @@ export default function InvoicePage() {
   }, [mounted, form.tanggal, existingInvoices, view, form.id]);
 
   const handleNewInvoice = () => {
-    if (confirm('Apakah Anda ingin membuat invoice baru? Semua data di form saat ini akan dikosongkan.')) {
-      setForm({
-        id: null,
-        noInvoice: generateNextInvoiceNumber(today, existingInvoices),
-        tanggal: today,
-        namaPembeli: '',
-        items: [{ ...EMPTY_ITEM }],
-        ongkir: '',
-        dp: '',
-      });
-      setView('form');
-    }
+    setForm({
+      id: null,
+      noInvoice: generateNextInvoiceNumber(today, existingInvoices),
+      tanggal: today,
+      namaPembeli: '',
+      items: [{ ...EMPTY_ITEM }],
+      ongkir: '',
+      dp: '',
+    });
+    setView('form');
   };
 
   // Computed
@@ -205,12 +203,11 @@ export default function InvoicePage() {
     setSubmitting(true);
 
     try {
-      const method = form.id ? 'PUT' : 'POST';
+      const isEdit = !!form.id;
+      const method = isEdit ? 'PUT' : 'POST';
       const response = await fetch('/api/invoices', {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
 
@@ -223,12 +220,16 @@ export default function InvoicePage() {
         setForm(p => ({ ...p, id: json.invoiceId }));
       }
 
-      // Re-fetch invoices to get the updated database count for the next invoice sequence
       await fetchInvoices();
 
-      // Go to preview view
-      setView('preview');
-      setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      if (isEdit) {
+        // Setelah edit → kembali ke riwayat
+        setView('history');
+      } else {
+        // Setelah buat baru → langsung preview
+        setView('preview');
+        setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      }
     } catch (err) {
       console.error(err);
       alert(err.message || 'Gagal menyimpan ke database. Silakan coba lagi.');
@@ -325,14 +326,31 @@ export default function InvoicePage() {
   if (!mounted) return null;
 
   return (
-    <SidebarLayout currentView={view} onViewChange={setView}>
+    <SidebarLayout currentView={view} onViewChange={setView} onNewInvoice={handleNewInvoice}>
       {/* ── FORM VIEW ── */}
       {view === 'form' && (
         <div className={styles.page}>
           <div className={styles.topBar}>
-            <button id="btn-new-invoice" className={styles.btnNewInvoice} type="button" onClick={handleNewInvoice}>
-              ✨ Buat Baru
-            </button>
+            {form.id ? (
+              // Mode Edit: tampilkan nomor invoice + tombol batal
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '8px', flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: '700', color: 'var(--green-500)', fontSize: '14px' }}>
+                  ✏️ Edit: {form.noInvoice}
+                </span>
+                <button
+                  type="button"
+                  className={styles.btnBack}
+                  onClick={() => setView('history')}
+                >
+                  ✕ Batal
+                </button>
+              </div>
+            ) : (
+              // Mode Baru: tampilkan nomor invoice yang akan dibuat
+              <span style={{ fontWeight: '700', color: 'var(--green-500)', fontSize: '14px' }}>
+                ✨ Invoice Baru: {form.noInvoice}
+              </span>
+            )}
           </div>
 
           <form className={styles.formWrap} onSubmit={handleGenerate} noValidate>
