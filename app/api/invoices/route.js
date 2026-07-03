@@ -97,6 +97,8 @@ export async function POST(request) {
     console.error('API POST Error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
+}
+
 // DELETE /api/invoices?id=... - Delete an invoice and its cascading items from Supabase
 export async function DELETE(request) {
   try {
