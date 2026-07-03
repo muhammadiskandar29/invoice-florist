@@ -4,9 +4,8 @@ import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './SidebarLayout.module.css';
 
-export default function SidebarLayout({ children }) {
+export default function SidebarLayout({ children, currentView, onViewChange }) {
   const router = useRouter();
-  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
@@ -15,11 +14,12 @@ export default function SidebarLayout({ children }) {
   };
 
   const navItems = [
-    { name: '📋 Invoice Generator', path: '/invoice', active: pathname === '/invoice' },
-    { name: '🌸 Kelola Produk', path: '#', active: false, disabled: true, badge: 'Nanti' },
-    { name: '👥 Data Pelanggan', path: '#', active: false, disabled: true, badge: 'Nanti' },
-    { name: '📊 Laporan Penjualan', path: '#', active: false, disabled: true, badge: 'Nanti' },
-    { name: '⚙️ Pengaturan', path: '#', active: false, disabled: true, badge: 'Nanti' },
+    { id: 'form', name: '📋 Invoice Generator', active: currentView === 'form' || currentView === 'preview' },
+    { id: 'history', name: '📜 Riwayat Invoice', active: currentView === 'history' },
+    { id: 'produk', name: '🌸 Kelola Produk', disabled: true, badge: 'Nanti' },
+    { id: 'pelanggan', name: '👥 Data Pelanggan', disabled: true, badge: 'Nanti' },
+    { id: 'laporan', name: '📊 Laporan Penjualan', disabled: true, badge: 'Nanti' },
+    { id: 'pengaturan', name: '⚙️ Pengaturan', disabled: true, badge: 'Nanti' },
   ];
 
   return (
@@ -76,7 +76,7 @@ export default function SidebarLayout({ children }) {
                 <button
                   className={`${styles.navItem} ${item.active ? styles.active : ''}`}
                   onClick={() => {
-                    router.push(item.path);
+                    if (onViewChange) onViewChange(item.id);
                     setIsOpen(false);
                   }}
                 >

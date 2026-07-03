@@ -444,7 +444,7 @@
   position: absolute;
   top: 25.8%;
   right: 8%;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 700;
   color: #1c1c0c;
   text-align: right;
@@ -457,7 +457,7 @@
   top: 28.5%;
   /* roughly 456px */
   right: 8%;
-  font-size: 22px;
+  font-size: 27px;
   font-weight: 700;
   color: #1c1c0c;
   text-align: right;
@@ -470,7 +470,7 @@
   top: 28.5%;
   left: 7.5%;
   /* roughly 54px */
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
   color: #1c1c0c;
   text-transform: uppercase;
