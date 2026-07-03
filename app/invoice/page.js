@@ -222,14 +222,9 @@ export default function InvoicePage() {
 
       await fetchInvoices();
 
-      if (isEdit) {
-        // Setelah edit → kembali ke riwayat
-        setView('history');
-      } else {
-        // Setelah buat baru → langsung preview
-        setView('preview');
-        setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-      }
+      // Selalu tampilkan preview setelah simpan (baik buat baru maupun edit)
+      setView('preview');
+      setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (err) {
       console.error(err);
       alert(err.message || 'Gagal menyimpan ke database. Silakan coba lagi.');
