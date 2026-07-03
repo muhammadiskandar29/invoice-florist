@@ -145,10 +145,7 @@ export default function LoginPage() {
             )}
           </button>
 
-          <p className={styles.hint}>
-            <span className={styles.hintIcon}>💡</span>
-            Demo: <code>admin</code> / <code>bunga123</code>
-          </p>
+
         </form>
       </div>
     </div>

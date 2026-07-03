@@ -97,4 +97,35 @@ export async function POST(request) {
     console.error('API POST Error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
+// DELETE /api/invoices?id=... - Delete an invoice and its cascading items from Supabase
+export async function DELETE(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'ID invoice wajib disertakan.' }, { status: 400 });
+    }
+
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/invoices?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': serviceKey,
+        'Authorization': `Bearer ${serviceKey}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gagal menghapus data di Supabase: ${errorText}`);
+    }
+
+    return NextResponse.json({ success: true, message: 'Invoice berhasil dihapus!' });
+  } catch (error) {
+    console.error('API DELETE Error:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
 }
+

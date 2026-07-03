@@ -121,6 +121,26 @@ export default function InvoicePage() {
     }
   };
 
+  const handleDelete = async (id, noInvoice) => {
+    if (confirm(`Apakah Anda yakin ingin menghapus invoice ${noInvoice}?`)) {
+      try {
+        const res = await fetch(`/api/invoices?id=${id}`, {
+          method: 'DELETE'
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert('Invoice berhasil dihapus!');
+          fetchInvoices();
+        } else {
+          alert(`Gagal menghapus: ${json.error}`);
+        }
+      } catch (err) {
+        console.error('Error deleting invoice:', err);
+        alert('Terjadi kesalahan koneksi saat menghapus.');
+      }
+    }
+  };
+
   useEffect(() => {
     if (mounted) {
       fetchInvoices();
@@ -424,8 +444,9 @@ export default function InvoicePage() {
         <div className={styles.page} ref={previewRef}>
           {/* Top bar */}
           <div className={styles.topBar}>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button id="btn-back" className={styles.btnBack} onClick={() => setView('form')}>← Edit</button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <button id="btn-back-history" className={styles.btnBack} onClick={() => setView('history')}>← Riwayat</button>
+              <button id="btn-back" className={styles.btnBack} onClick={() => setView('form')}>✏️ Edit</button>
               <button id="btn-new-invoice-preview" className={styles.btnNewInvoice} onClick={handleNewInvoice}>✨ Buat Baru</button>
             </div>
           </div>
@@ -584,17 +605,21 @@ export default function InvoicePage() {
                     const grand = itemsTotal + parseFloat(inv.ongkir) - parseFloat(inv.dp);
 
                     return (
-                      <div key={inv.id} className={styles.itemBlock} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div key={inv.id} className={styles.itemBlock} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+                        {/* Cell Kiri: Info Invoice (Lebih Lebar) */}
+                        <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ fontWeight: '700', color: 'var(--green-500)', fontSize: '15px' }}>{inv.no_invoice}</span>
                           <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Tanggal: {formatTanggal(inv.tanggal)}</span>
                           <span style={{ fontSize: '13px', fontWeight: '600' }}>Penerima: {inv.nama_pembeli}</span>
                           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Total: <strong>Rp {toRupiah(grand)}</strong></span>
                         </div>
-                        <div>
+                        
+                        {/* Cell Kanan: Aksi (Lihat & Hapus) */}
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-end', flexShrink: 0, flexWrap: 'wrap' }}>
                           <button
                             type="button"
                             className={styles.btnAdd}
+                            style={{ padding: '8px 14px', fontSize: '12px', height: '36px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                             onClick={() => {
                               // Load invoice data to state
                               setForm({
@@ -615,6 +640,14 @@ export default function InvoicePage() {
                             }}
                           >
                             👁️ Lihat Hasil
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.btnRemove}
+                            style={{ padding: '8px 14px', fontSize: '12px', height: '36px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            onClick={() => handleDelete(inv.id, inv.no_invoice)}
+                          >
+                            🗑️ Hapus
                           </button>
                         </div>
                       </div>
