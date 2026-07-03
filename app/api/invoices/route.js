@@ -99,6 +99,85 @@ export async function POST(request) {
   }
 }
 
+// PUT /api/invoices - Update an existing invoice and its items
+export async function PUT(request) {
+  try {
+    const body = await request.json();
+    const { id, noInvoice, tanggal, namaPembeli, items, ongkir, dp } = body;
+
+    if (!id || !noInvoice || !tanggal || !namaPembeli) {
+      return NextResponse.json({ success: false, error: 'Data invoice tidak lengkap untuk update.' }, { status: 400 });
+    }
+
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
+
+    // 1. Update baris utama di tabel 'invoices'
+    const invoiceRes = await fetch(`${SUPABASE_URL}/rest/v1/invoices?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': serviceKey,
+        'Authorization': `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        tanggal,
+        nama_pembeli: namaPembeli,
+        ongkir: parseFloat(ongkir) || 0,
+        dp: parseFloat(dp) || 0
+      })
+    });
+
+    if (!invoiceRes.ok) {
+      const err = await invoiceRes.text();
+      throw new Error(`Gagal update invoice: ${err}`);
+    }
+
+    // 2. Hapus semua item lama yang terkait invoice ini
+    const deleteItemsRes = await fetch(`${SUPABASE_URL}/rest/v1/invoice_items?invoice_id=eq.${id}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': serviceKey,
+        'Authorization': `Bearer ${serviceKey}`
+      }
+    });
+
+    if (!deleteItemsRes.ok) {
+      const err = await deleteItemsRes.text();
+      throw new Error(`Gagal menghapus item lama: ${err}`);
+    }
+
+    // 3. Insert item-item baru (yang sudah diedit)
+    const itemsData = items.map(item => ({
+      invoice_id: id,
+      deskripsi: item.deskripsi || '',
+      harga: parseFloat(item.harga) || 0,
+      kuantitas: parseInt(item.kuantitas, 10) || 1,
+      total: (parseFloat(item.harga) || 0) * (parseInt(item.kuantitas, 10) || 1)
+    }));
+
+    const insertItemsRes = await fetch(`${SUPABASE_URL}/rest/v1/invoice_items`, {
+      method: 'POST',
+      headers: {
+        'apikey': serviceKey,
+        'Authorization': `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(itemsData)
+    });
+
+    if (!insertItemsRes.ok) {
+      const err = await insertItemsRes.text();
+      throw new Error(`Gagal menyimpan item baru: ${err}`);
+    }
+
+    return NextResponse.json({ success: true, message: 'Invoice berhasil diperbarui!', invoiceId: id });
+  } catch (error) {
+    console.error('API PUT Error:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
 // DELETE /api/invoices?id=... - Delete an invoice and its cascading items from Supabase
 export async function DELETE(request) {
   try {

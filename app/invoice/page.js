@@ -97,6 +97,7 @@ export default function InvoicePage() {
 
   const today = new Date().toISOString().split('T')[0];
   const [form, setForm] = useState({
+    id: null,
     noInvoice: '',
     tanggal: today,
     namaPembeli: '',
@@ -160,18 +161,19 @@ export default function InvoicePage() {
   useEffect(() => {
     if (!mounted) return;
 
-    if (view === 'form') {
+    if (view === 'form' && !form.id) {
       const nextNo = generateNextInvoiceNumber(form.tanggal, existingInvoices);
       setForm(p => ({
         ...p,
         noInvoice: nextNo
       }));
     }
-  }, [mounted, form.tanggal, existingInvoices, view]);
+  }, [mounted, form.tanggal, existingInvoices, view, form.id]);
 
   const handleNewInvoice = () => {
     if (confirm('Apakah Anda ingin membuat invoice baru? Semua data di form saat ini akan dikosongkan.')) {
       setForm({
+        id: null,
         noInvoice: generateNextInvoiceNumber(today, existingInvoices),
         tanggal: today,
         namaPembeli: '',
@@ -203,8 +205,9 @@ export default function InvoicePage() {
     setSubmitting(true);
 
     try {
+      const method = form.id ? 'PUT' : 'POST';
       const response = await fetch('/api/invoices', {
-        method: 'POST',
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -214,6 +217,10 @@ export default function InvoicePage() {
       const json = await response.json();
       if (!json.success) {
         throw new Error(json.error || 'Gagal menyimpan invoice.');
+      }
+
+      if (json.invoiceId) {
+        setForm(p => ({ ...p, id: json.invoiceId }));
       }
 
       // Re-fetch invoices to get the updated database count for the next invoice sequence
@@ -433,7 +440,12 @@ export default function InvoicePage() {
             </div>
 
             <button id="btn-generate" type="submit" className={styles.btnGenerate} disabled={submitting}>
-              {submitting ? '⏳ Menyimpan...' : '🌺 Generate & Simpan Invoice'}
+              {submitting
+                ? '⏳ Menyimpan...'
+                : form.id
+                  ? '💾 Simpan Perubahan'
+                  : '🌺 Generate & Simpan Invoice'
+              }
             </button>
           </form>
         </div>
@@ -621,8 +633,9 @@ export default function InvoicePage() {
                             className={styles.btnAdd}
                             style={{ padding: '8px 14px', fontSize: '12px', height: '36px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                             onClick={() => {
-                              // Load invoice data to state
+                              // Load invoice data to state (mode edit)
                               setForm({
+                                id: inv.id,
                                 noInvoice: inv.no_invoice,
                                 tanggal: inv.tanggal,
                                 namaPembeli: inv.nama_pembeli,
