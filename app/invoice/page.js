@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './invoice.module.css';
+import SidebarLayout from '../../components/SidebarLayout';
 
 // ─── KONFIGURASI TOKO ───────────────────────────
 const SHOP = {
@@ -27,6 +28,37 @@ function formatTanggal(iso) {
   if (!iso) return '';
   const d = new Date(iso + 'T00:00:00');
   return `${d.getDate()}/${d.getMonth() + 1}/${String(d.getFullYear()).slice(-2)}`;
+}
+
+function getYearMonthStr(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length >= 2) {
+    return parts[0] + parts[1]; // YYYYMM
+  }
+  return '';
+}
+
+function generateNextInvoiceNumber(dateStr, existingInvoices) {
+  const ym = getYearMonthStr(dateStr);
+  if (!ym) return '';
+  
+  const prefix = `INV-${ym}-`;
+  const matches = (existingInvoices || [])
+    .map(inv => inv.no_invoice)
+    .filter(no => typeof no === 'string' && no.startsWith(prefix))
+    .map(no => {
+      const parts = no.split('-');
+      const numStr = parts[parts.length - 1];
+      const num = parseInt(numStr, 10);
+      return isNaN(num) ? 0 : num;
+    });
+    
+  const maxNum = matches.length > 0 ? Math.max(...matches) : 0;
+  const nextNum = maxNum + 1;
+  const nextNumStr = String(nextNum).padStart(3, '0');
+  
+  return `${prefix}${nextNumStr}`;
 }
 
 export default function InvoicePage() {
@@ -73,6 +105,28 @@ export default function InvoicePage() {
     dp: '',
   });
 
+  const [existingInvoices, setExistingInvoices] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Fetch invoices from backend
+  const fetchInvoices = async () => {
+    try {
+      const res = await fetch('/api/invoices');
+      const json = await res.json();
+      if (json.success) {
+        setExistingInvoices(json.data || []);
+      }
+    } catch (e) {
+      console.error('Error fetching invoices:', e);
+    }
+  };
+
+  useEffect(() => {
+    if (mounted) {
+      fetchInvoices();
+    }
+  }, [mounted]);
+
   const setField = (k, v) => setForm(p => ({ ...p, [k]: v }));
   const setItem = (i, k, v) =>
     setForm(p => ({ ...p, items: p.items.map((it, idx) => idx === i ? { ...it, [k]: v } : it) }));
@@ -81,6 +135,33 @@ export default function InvoicePage() {
     ...p,
     items: p.items.length === 1 ? p.items : p.items.filter((_, idx) => idx !== i)
   }));
+
+  // Automatically update/generate invoice number based on the selected date and existing invoices list
+  useEffect(() => {
+    if (!mounted) return;
+    
+    if (view === 'form') {
+      const nextNo = generateNextInvoiceNumber(form.tanggal, existingInvoices);
+      setForm(p => ({
+        ...p,
+        noInvoice: nextNo
+      }));
+    }
+  }, [mounted, form.tanggal, existingInvoices, view]);
+
+  const handleNewInvoice = () => {
+    if (confirm('Apakah Anda ingin membuat invoice baru? Semua data di form saat ini akan dikosongkan.')) {
+      setForm({
+        noInvoice: generateNextInvoiceNumber(today, existingInvoices),
+        tanggal: today,
+        namaPembeli: '',
+        items: [{ ...EMPTY_ITEM }],
+        ongkir: '',
+        dp: '',
+      });
+      setView('form');
+    }
+  };
 
   // Computed
   const subTotalItems = form.items.reduce(
@@ -91,10 +172,42 @@ export default function InvoicePage() {
   const subTotal = subTotalItems + ongkirNum;
   const grandTotal = subTotal - dpNum;
 
-  const handleGenerate = (e) => {
+  const handleGenerate = async (e) => {
     e.preventDefault();
-    setView('preview');
-    setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    
+    if (!form.namaPembeli) {
+      alert('Nama Penerima harus diisi.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const response = await fetch('/api/invoices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+
+      const json = await response.json();
+      if (!json.success) {
+        throw new Error(json.error || 'Gagal menyimpan invoice.');
+      }
+
+      // Re-fetch invoices to get the updated database count for the next invoice sequence
+      await fetchInvoices();
+
+      // Go to preview view
+      setView('preview');
+      setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Gagal menyimpan ke database. Silakan coba lagi.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Export
@@ -189,14 +302,13 @@ export default function InvoicePage() {
   // ════════════════════════════════════════════
   if (view === 'form') {
     return (
-      <div className={styles.page}>
-        <div className={styles.topBar}>
-          <div className={styles.topBarBrand}>
-            <span>🌹</span>
-            <span className={`${styles.brandText} font-script`}>RiaFlorist</span>
+      <SidebarLayout>
+        <div className={styles.page}>
+          <div className={styles.topBar}>
+            <button id="btn-new-invoice" className={styles.btnNewInvoice} type="button" onClick={handleNewInvoice}>
+              ✨ Buat Baru
+            </button>
           </div>
-          <button id="btn-logout" className={styles.logoutBtn} onClick={handleLogout}>Keluar</button>
-        </div>
 
         <form className={styles.formWrap} onSubmit={handleGenerate} noValidate>
 
@@ -204,10 +316,9 @@ export default function InvoicePage() {
           <div className={styles.formCard}>
             <h2 className={styles.cardTitle}>📋 Info Invoice</h2>
             <div className={styles.fieldGroup}>
-              <label className={styles.label} htmlFor="noInvoice">No. Invoice</label>
-              <input id="noInvoice" className={styles.input} type="text"
-                placeholder="Contoh: INV522110249"
-                value={form.noInvoice} onChange={e => setField('noInvoice', e.target.value)} required />
+              <label className={styles.label} htmlFor="noInvoice">No. Invoice (Otomatis)</label>
+              <input id="noInvoice" className={`${styles.input} ${styles.inputLocked}`} type="text"
+                value={form.noInvoice} readOnly required />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label} htmlFor="tanggal">Tanggal</label>
@@ -304,11 +415,12 @@ export default function InvoicePage() {
             </div>
           </div>
 
-          <button id="btn-generate" type="submit" className={styles.btnGenerate}>
-            🌺 Generate Invoice
+          <button id="btn-generate" type="submit" className={styles.btnGenerate} disabled={submitting}>
+            {submitting ? '⏳ Menyimpan...' : '🌺 Generate & Simpan Invoice'}
           </button>
         </form>
       </div>
+      </SidebarLayout>
     );
   }
 
@@ -316,13 +428,15 @@ export default function InvoicePage() {
   //  PREVIEW VIEW
   // ════════════════════════════════════════════
   return (
-    <div className={styles.page} ref={previewRef}>
-      {/* Top bar */}
-      <div className={styles.topBar}>
-        <button id="btn-back" className={styles.btnBack} onClick={() => setView('form')}>← Edit</button>
-        <span className={`${styles.brandText} font-script`} style={{ fontSize: '20px' }}>RiaFlorist</span>
-        <button id="btn-logout-preview" className={styles.logoutBtn} onClick={handleLogout}>Keluar</button>
-      </div>
+    <SidebarLayout>
+      <div className={styles.page} ref={previewRef}>
+        {/* Top bar */}
+        <div className={styles.topBar}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <button id="btn-back" className={styles.btnBack} onClick={() => setView('form')}>← Edit</button>
+            <button id="btn-new-invoice-preview" className={styles.btnNewInvoice} onClick={handleNewInvoice}>✨ Buat Baru</button>
+          </div>
+        </div>
 
       {/* Export bar */}
       <div className={styles.exportBar}>
@@ -453,5 +567,6 @@ export default function InvoicePage() {
         </div>
       </div>
     </div>
+    </SidebarLayout>
   );
 }

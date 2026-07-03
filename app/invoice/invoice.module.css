@@ -77,6 +77,33 @@
   border-color: var(--olive);
 }
 
+.btnNewInvoice {
+  background: linear-gradient(135deg, var(--green-400) 0%, var(--green-500) 100%);
+  border: none;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 2px 8px rgba(92, 92, 46, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btnNewInvoice:hover {
+  background: linear-gradient(135deg, var(--green-300) 0%, var(--green-400) 100%);
+  box-shadow: 0 4px 12px rgba(92, 92, 46, 0.35);
+  transform: translateY(-1px);
+}
+
+.btnNewInvoice:active {
+  transform: scale(0.97);
+}
+
 /* ===========================================
    FORM VIEW
 =========================================== */
@@ -143,6 +170,13 @@
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
+}
+
+.inputLocked {
+  background-color: var(--bg-surface);
+  cursor: not-allowed;
+  color: var(--text-muted);
+  border-style: dashed;
 }
 
 .input:focus {

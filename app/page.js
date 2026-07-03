@@ -4,12 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
 
-// ============================================================
-// HARDCODED CREDENTIALS — ganti sesuai kebutuhan
-// ============================================================
-const VALID_USERNAME = 'admin';
-const VALID_PASSWORD = 'bunga123';
-// ============================================================
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,12 +26,27 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
-    if (username.trim() === VALID_USERNAME && password === VALID_PASSWORD) {
-      sessionStorage.setItem('isLoggedIn', 'true');
-      router.push('/invoice');
-    } else {
-      setError('Username atau password salah. Coba lagi.');
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: username.trim(), password }),
+      });
+
+      const json = await response.json();
+      if (json.success) {
+        sessionStorage.setItem('isLoggedIn', 'true');
+        router.push('/invoice');
+      } else {
+        setError(json.error || 'Username atau password salah. Coba lagi.');
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Gagal menghubungi server. Silakan coba lagi.');
       setLoading(false);
     }
   };
