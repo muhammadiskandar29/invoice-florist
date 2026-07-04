@@ -369,7 +369,8 @@ export default function InvoicePage() {
               <h2 className={styles.cardTitle}>👤 Kepada</h2>
               <div className={styles.fieldGroup}>
                 <label className={styles.label} htmlFor="namaPembeli">Nama Penerima</label>
-                <input id="namaPembeli" className={styles.input} type="text"
+                <textarea id="namaPembeli" className={styles.input}
+                  style={{ minHeight: '100px', fontSize: '16px', fontFamily: 'inherit', resize: 'vertical', lineHeight: '1.4' }}
                   placeholder="Nama lengkap / perusahaan"
                   value={form.namaPembeli} onChange={e => setField('namaPembeli', e.target.value)} required />
               </div>
@@ -541,7 +542,7 @@ export default function InvoicePage() {
                 </div>
 
                 {/* ── 5. Nama Pembeli ── */}
-                <div className={styles.fieldNama}>
+                <div className={styles.fieldNama} style={{ whiteSpace: 'pre-wrap' }}>
                   {(form.namaPembeli || '').toUpperCase()}
                 </div>
 
@@ -638,7 +639,7 @@ export default function InvoicePage() {
                           <span style={{ fontSize: '13px', fontWeight: '600' }}>Penerima: {inv.nama_pembeli}</span>
                           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Total: <strong>Rp {toRupiah(grand)}</strong></span>
                         </div>
-                        
+
                         {/* Cell Kanan: Aksi (Lihat & Hapus) */}
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-end', flexShrink: 0, flexWrap: 'wrap' }}>
                           <button
