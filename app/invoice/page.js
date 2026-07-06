@@ -72,6 +72,80 @@ function generateNextInvoiceNumber(dateStr, existingInvoices) {
   return `${prefix}${nextNumStr}`;
 }
 
+const RefreshIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <polyline points="23 4 23 10 17 10"></polyline>
+    <polyline points="1 20 1 14 7 14"></polyline>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+  </svg>
+);
+
+const EyeIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <polyline points="3 6 5 6 21 6"></polyline>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+    <line x1="10" y1="11" x2="10" y2="17"></line>
+    <line x1="14" y1="11" x2="14" y2="17"></line>
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+  </svg>
+);
+
+const PlusIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+);
+
+const CloseIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+);
+
+const ArrowLeftIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+);
+
+const SaveIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+    <polyline points="7 3 7 8 15 8"></polyline>
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+);
+
+const DownloadIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+    <polyline points="7 10 12 15 17 10"></polyline>
+    <line x1="12" y1="15" x2="12" y2="3"></line>
+  </svg>
+);
+
 export default function InvoicePage() {
   const router = useRouter();
   const previewRef = useRef(null);
@@ -377,19 +451,18 @@ export default function InvoicePage() {
       {view === 'dashboard' && (
         <div className={styles.page}>
           <div className={styles.topBar}>
-            <div className={styles.topBarBrand}>
-              <span>📊</span>
-              <span className={`${styles.brandText} font-script`} style={{ fontSize: '20px' }}>Dashboard Analitik</span>
+            <div className={styles.topBarBrand} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className={styles.brandText} style={{ fontSize: '18px', fontWeight: '700', letterSpacing: '-0.5px' }}>Dashboard Analitik</span>
             </div>
-            <button type="button" className={styles.logoutBtn} onClick={fetchInvoices}>
-              🔄 Refresh
+            <button type="button" className={styles.logoutBtn} onClick={fetchInvoices} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <RefreshIcon /> Refresh
             </button>
           </div>
 
           <div className={styles.formWrap}>
             {/* Banner Selamat Datang */}
             <div className={styles.formCard} style={{ background: 'linear-gradient(135deg, var(--green-500), var(--green-700))', color: '#fff', border: 'none' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 8px 0' }}>Selamat Datang, Admin RiaFlorist! 🌹</h2>
+              <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 8px 0' }}>Selamat Datang, Admin RiaFlorist</h2>
               <p style={{ fontSize: '14px', margin: 0, opacity: 0.9 }}>
                 Berikut adalah rangkuman performa toko bunga Anda hari ini. Kelola invoice dan pantau pendapatan dengan mudah.
               </p>
@@ -400,28 +473,28 @@ export default function InvoicePage() {
               
               {/* Card Pendapatan */}
               <div className={styles.formCard} style={{ margin: 0, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>💰 Pendapatan Bersih</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>Pendapatan Bersih</span>
                 <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--green-500)' }}>Rp {toRupiah(stats.totalRevenue)}</span>
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Total setelah dikurangi uang muka (DP)</span>
               </div>
 
               {/* Card Jumlah Invoice */}
               <div className={styles.formCard} style={{ margin: 0, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>📄 Total Transaksi</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>Total Transaksi</span>
                 <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>{stats.invoiceCount} Invoice</span>
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Jumlah invoice tercatat di database</span>
               </div>
 
               {/* Card Rata-rata */}
               <div className={styles.formCard} style={{ margin: 0, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>📈 Rata-rata Penjualan</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>Rata-rata Penjualan</span>
                 <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>Rp {toRupiah(Math.round(stats.averageRevenue))}</span>
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Rata-rata omset per transaksi</span>
               </div>
 
               {/* Card DP Terkumpul */}
               <div className={styles.formCard} style={{ margin: 0, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>💳 Uang Muka (DP)</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>Uang Muka (DP)</span>
                 <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>Rp {toRupiah(stats.totalDP)}</span>
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Total DP yang telah diterima</span>
               </div>
@@ -430,7 +503,9 @@ export default function InvoicePage() {
 
             {/* Transaksi Terbaru */}
             <div className={styles.formCard}>
-              <h3 className={styles.cardTitle} style={{ marginBottom: '16px' }}>🕒 5 Aktivitas Penjualan Terakhir</h3>
+              <h3 className={styles.cardTitle} style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                Aktivitas Penjualan Terakhir
+              </h3>
               {existingInvoices.length === 0 ? (
                 <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
                   Belum ada aktivitas penjualan.
@@ -457,7 +532,7 @@ export default function InvoicePage() {
                           <button
                             type="button"
                             className={styles.btnAdd}
-                            style={{ padding: '6px 10px', fontSize: '11px', height: '28px', display: 'inline-flex', alignItems: 'center' }}
+                            style={{ padding: '6px 12px', fontSize: '11px', height: '28px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                             onClick={() => {
                               setForm({
                                 id: inv.id,
@@ -475,7 +550,7 @@ export default function InvoicePage() {
                               setView('preview');
                             }}
                           >
-                            👁️ Detail
+                            <EyeIcon /> Detail
                           </button>
                         </div>
                       </div>
@@ -497,20 +572,21 @@ export default function InvoicePage() {
               // Mode Edit: tampilkan nomor invoice + tombol batal
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '8px', flexWrap: 'wrap' }}>
                 <span style={{ fontWeight: '700', color: 'var(--green-500)', fontSize: '14px' }}>
-                  ✏️ Edit: {form.noInvoice}
+                  Edit: {form.noInvoice}
                 </span>
                 <button
                   type="button"
                   className={styles.btnBack}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                   onClick={() => setView('history')}
                 >
-                  ✕ Batal
+                  <CloseIcon /> Batal
                 </button>
               </div>
             ) : (
               // Mode Baru: tampilkan nomor invoice yang akan dibuat
               <span style={{ fontWeight: '700', color: 'var(--green-500)', fontSize: '14px' }}>
-                ✨ Invoice Baru: {form.noInvoice}
+                Invoice Baru: {form.noInvoice}
               </span>
             )}
           </div>
@@ -518,7 +594,7 @@ export default function InvoicePage() {
           <form className={styles.formWrap} onSubmit={handleGenerate} onKeyDown={handleFormKeyDown} noValidate>
             {/* Info Invoice */}
             <div className={styles.formCard}>
-              <h2 className={styles.cardTitle}>📋 Info Invoice</h2>
+              <h2 className={styles.cardTitle}>Info Invoice</h2>
               <div className={styles.fieldGroup}>
                 <label className={styles.label} htmlFor="noInvoice">No. Invoice (Otomatis)</label>
                 <input id="noInvoice" className={`${styles.input} ${styles.inputLocked}`} type="text"
@@ -533,7 +609,7 @@ export default function InvoicePage() {
 
             {/* Kepada */}
             <div className={styles.formCard}>
-              <h2 className={styles.cardTitle}>👤 Kepada</h2>
+              <h2 className={styles.cardTitle}>Penerima</h2>
               <div className={styles.fieldGroup}>
                 <label className={styles.label} htmlFor="namaPembeli">Nama Penerima</label>
                 <textarea id="namaPembeli" className={styles.input}
@@ -546,9 +622,9 @@ export default function InvoicePage() {
             {/* Items */}
             <div className={styles.formCard}>
               <div className={styles.cardTitleRow}>
-                <h2 className={styles.cardTitle}>🌸 Item Pesanan</h2>
-                <button type="button" id="btn-add-item" className={styles.btnAdd} onClick={addItem}>
-                  + Tambah Item
+                <h2 className={styles.cardTitle}>Item Pesanan</h2>
+                <button type="button" id="btn-add-item" className={styles.btnAdd} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }} onClick={addItem}>
+                  <PlusIcon /> Tambah Item
                 </button>
               </div>
 
@@ -557,8 +633,8 @@ export default function InvoicePage() {
                   <div className={styles.itemBlockHeader}>
                     <span className={styles.itemNum}>Item {i + 1}</span>
                     {form.items.length > 1 && (
-                      <button type="button" className={styles.btnRemove} onClick={() => removeItem(i)}>
-                        ✕ Hapus
+                      <button type="button" className={styles.btnRemove} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }} onClick={() => removeItem(i)}>
+                        <CloseIcon /> Hapus
                       </button>
                     )}
                   </div>
@@ -591,7 +667,7 @@ export default function InvoicePage() {
 
             {/* Biaya Tambahan */}
             <div className={styles.formCard}>
-              <h2 className={styles.cardTitle}>💳 Biaya Tambahan</h2>
+              <h2 className={styles.cardTitle}>Biaya Tambahan</h2>
               <div className={styles.fieldGroup}>
                 <label className={styles.label} htmlFor="ongkir">Ongkir (Rp)</label>
                 <input id="ongkir" className={styles.input} type="number" min="0"
@@ -620,12 +696,13 @@ export default function InvoicePage() {
               </div>
             </div>
 
-            <button id="btn-generate" type="submit" className={styles.btnGenerate} disabled={submitting}>
+            <button id="btn-generate" type="submit" className={styles.btnGenerate} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} disabled={submitting}>
+              <SaveIcon />
               {submitting
-                ? '⏳ Menyimpan...'
+                ? 'Menyimpan...'
                 : form.id
-                  ? '💾 Simpan Perubahan'
-                  : '🌺 Generate & Simpan Invoice'
+                  ? 'Simpan Perubahan'
+                  : 'Generate & Simpan Invoice'
               }
             </button>
           </form>
@@ -638,9 +715,15 @@ export default function InvoicePage() {
           {/* Top bar */}
           <div className={styles.topBar}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <button id="btn-back-history" className={styles.btnBack} onClick={() => setView('history')}>← Riwayat</button>
-              <button id="btn-back" className={styles.btnBack} onClick={() => setView('form')}>✏️ Edit</button>
-              <button id="btn-new-invoice-preview" className={styles.btnNewInvoice} onClick={handleNewInvoice}>✨ Buat Baru</button>
+              <button id="btn-back-history" className={styles.btnBack} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }} onClick={() => setView('history')}>
+                <ArrowLeftIcon /> Riwayat
+              </button>
+              <button id="btn-back" className={styles.btnBack} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }} onClick={() => setView('form')}>
+                <EditIcon /> Edit
+              </button>
+              <button id="btn-new-invoice-preview" className={styles.btnNewInvoice} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }} onClick={handleNewInvoice}>
+                <PlusIcon /> Buat Baru
+              </button>
             </div>
           </div>
 
@@ -649,20 +732,21 @@ export default function InvoicePage() {
             <p className={styles.exportLabel}>Unduh sebagai:</p>
             <div className={styles.exportBtns}>
               {[
-                { fmt: 'pdf', icon: '📄', label: 'PDF' },
-                { fmt: 'jpg', icon: '📷', label: 'JPG' },
-                { fmt: 'png', icon: '🖼️', label: 'PNG' },
-                { fmt: 'docx', icon: '📝', label: 'DOCX' },
-              ].map(({ fmt, icon, label }) => (
+                { fmt: 'pdf', label: 'PDF' },
+                { fmt: 'jpg', label: 'JPG' },
+                { fmt: 'png', label: 'PNG' },
+                { fmt: 'docx', label: 'DOCX' },
+              ].map(({ fmt, label }) => (
                 <button key={fmt} id={`btn-export-${fmt}`}
                   className={styles.btnExport}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                   onClick={() => handleExport(fmt)}
                   disabled={exporting}>
-                  {exporting ? '⏳' : icon} {label}
+                  <DownloadIcon /> {label}
                 </button>
               ))}
             </div>
-            {exportDone && <p className={styles.exportSuccess}>✅ Berhasil diunduh!</p>}
+            {exportDone && <p className={styles.exportSuccess}>Berhasil diunduh!</p>}
           </div>
 
           {/* Invoice preview */}
@@ -772,18 +856,17 @@ export default function InvoicePage() {
       {view === 'history' && (
         <div className={styles.page}>
           <div className={styles.topBar}>
-            <div className={styles.topBarBrand}>
-              <span>📜</span>
-              <span className={`${styles.brandText} font-script`} style={{ fontSize: '20px' }}>Riwayat Invoice</span>
+            <div className={styles.topBarBrand} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className={styles.brandText} style={{ fontSize: '18px', fontWeight: '700', letterSpacing: '-0.5px' }}>Riwayat Invoice</span>
             </div>
-            <button type="button" className={styles.logoutBtn} onClick={fetchInvoices}>
-              🔄 Refresh
+            <button type="button" className={styles.logoutBtn} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }} onClick={fetchInvoices}>
+              <RefreshIcon /> Refresh
             </button>
           </div>
 
           <div className={styles.formWrap}>
             <div className={styles.formCard}>
-              <h2 className={styles.cardTitle}>📋 Daftar Invoice Terdaftar ({existingInvoices.length})</h2>
+              <h2 className={styles.cardTitle}>Daftar Invoice Terdaftar ({existingInvoices.length})</h2>
 
               {existingInvoices.length === 0 ? (
                 <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
@@ -815,7 +898,7 @@ export default function InvoicePage() {
                           <button
                             type="button"
                             className={styles.btnAdd}
-                            style={{ padding: '8px 14px', fontSize: '12px', height: '36px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            style={{ padding: '8px 14px', fontSize: '12px', height: '36px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                             onClick={() => {
                               // Load invoice data to state (mode edit)
                               setForm({
@@ -836,15 +919,15 @@ export default function InvoicePage() {
                               setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
                             }}
                           >
-                            👁️ Lihat Hasil
+                            <EyeIcon /> Lihat Hasil
                           </button>
                           <button
                             type="button"
                             className={styles.btnRemove}
-                            style={{ padding: '8px 14px', fontSize: '12px', height: '36px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            style={{ padding: '8px 14px', fontSize: '12px', height: '36px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                             onClick={() => handleDelete(inv.id, inv.no_invoice)}
                           >
-                            🗑️ Hapus
+                            <TrashIcon /> Hapus
                           </button>
                         </div>
                       </div>
