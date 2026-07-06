@@ -30,6 +30,17 @@ function formatTanggal(iso) {
   return `${d.getDate()}/${d.getMonth() + 1}/${String(d.getFullYear()).slice(-2)}`;
 }
 
+function formatDateTime(isoString) {
+  if (!isoString) return '-';
+  const date = new Date(isoString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
 function getYearMonthStr(dateStr) {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
@@ -71,7 +82,7 @@ export default function InvoicePage() {
     if (sessionStorage.getItem('isLoggedIn') !== 'true') router.replace('/');
   }, [router]);
 
-  const [view, setView] = useState('form');
+  const [view, setView] = useState('dashboard');
 
   // Dynamic scaling for invoice preview relative to screen width
   const [scale, setScale] = useState(1);
@@ -112,7 +123,12 @@ export default function InvoicePage() {
   // Fetch invoices from backend
   const fetchInvoices = async () => {
     try {
-      const res = await fetch('/api/invoices');
+      const res = await fetch(`/api/invoices?t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       const json = await res.json();
       if (json.success) {
         setExistingInvoices(json.data || []);
@@ -204,6 +220,28 @@ export default function InvoicePage() {
       }
     }
   };
+
+  // Computed dashboard stats
+  const stats = (() => {
+    let totalRevenue = 0;
+    let totalDP = 0;
+    let totalOngkir = 0;
+    const invoiceCount = existingInvoices.length;
+
+    existingInvoices.forEach(inv => {
+      const itemsTotal = (inv.invoice_items || []).reduce(
+        (sum, it) => sum + parseFloat(it.harga) * parseInt(it.kuantitas, 10), 0
+      );
+      const grand = itemsTotal + parseFloat(inv.ongkir) - parseFloat(inv.dp);
+      totalRevenue += grand;
+      totalDP += parseFloat(inv.dp);
+      totalOngkir += parseFloat(inv.ongkir);
+    });
+
+    const averageRevenue = invoiceCount > 0 ? totalRevenue / invoiceCount : 0;
+
+    return { totalRevenue, totalDP, totalOngkir, invoiceCount, averageRevenue };
+  })();
 
   const handleGenerate = async (e) => {
     e.preventDefault();
@@ -335,6 +373,122 @@ export default function InvoicePage() {
 
   return (
     <SidebarLayout currentView={view} onViewChange={setView} onNewInvoice={handleNewInvoice}>
+      {/* ── DASHBOARD VIEW ── */}
+      {view === 'dashboard' && (
+        <div className={styles.page}>
+          <div className={styles.topBar}>
+            <div className={styles.topBarBrand}>
+              <span>📊</span>
+              <span className={`${styles.brandText} font-script`} style={{ fontSize: '20px' }}>Dashboard Analitik</span>
+            </div>
+            <button type="button" className={styles.logoutBtn} onClick={fetchInvoices}>
+              🔄 Refresh
+            </button>
+          </div>
+
+          <div className={styles.formWrap}>
+            {/* Banner Selamat Datang */}
+            <div className={styles.formCard} style={{ background: 'linear-gradient(135deg, var(--green-500), var(--green-700))', color: '#fff', border: 'none' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 8px 0' }}>Selamat Datang, Admin RiaFlorist! 🌹</h2>
+              <p style={{ fontSize: '14px', margin: 0, opacity: 0.9 }}>
+                Berikut adalah rangkuman performa toko bunga Anda hari ini. Kelola invoice dan pantau pendapatan dengan mudah.
+              </p>
+            </div>
+
+            {/* Metrics Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', margin: '20px 0' }}>
+              
+              {/* Card Pendapatan */}
+              <div className={styles.formCard} style={{ margin: 0, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>💰 Pendapatan Bersih</span>
+                <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--green-500)' }}>Rp {toRupiah(stats.totalRevenue)}</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Total setelah dikurangi uang muka (DP)</span>
+              </div>
+
+              {/* Card Jumlah Invoice */}
+              <div className={styles.formCard} style={{ margin: 0, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>📄 Total Transaksi</span>
+                <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>{stats.invoiceCount} Invoice</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Jumlah invoice tercatat di database</span>
+              </div>
+
+              {/* Card Rata-rata */}
+              <div className={styles.formCard} style={{ margin: 0, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>📈 Rata-rata Penjualan</span>
+                <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>Rp {toRupiah(Math.round(stats.averageRevenue))}</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Rata-rata omset per transaksi</span>
+              </div>
+
+              {/* Card DP Terkumpul */}
+              <div className={styles.formCard} style={{ margin: 0, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>💳 Uang Muka (DP)</span>
+                <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>Rp {toRupiah(stats.totalDP)}</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Total DP yang telah diterima</span>
+              </div>
+
+            </div>
+
+            {/* Transaksi Terbaru */}
+            <div className={styles.formCard}>
+              <h3 className={styles.cardTitle} style={{ marginBottom: '16px' }}>🕒 5 Aktivitas Penjualan Terakhir</h3>
+              {existingInvoices.length === 0 ? (
+                <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  Belum ada aktivitas penjualan.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {existingInvoices.slice(0, 5).map((inv) => {
+                    const itemsTotal = (inv.invoice_items || []).reduce(
+                      (sum, it) => sum + parseFloat(it.harga) * parseInt(it.kuantitas, 10), 0
+                    );
+                    const grand = itemsTotal + parseFloat(inv.ongkir) - parseFloat(inv.dp);
+
+                    return (
+                      <div key={inv.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '8px', flexWrap: 'wrap', gap: '12px' }}>
+                        <div>
+                          <div style={{ fontWeight: '700', color: 'var(--green-500)', fontSize: '14px' }}>{inv.no_invoice}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '500' }}>{inv.nama_pembeli}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                            {inv.created_at ? formatDateTime(inv.created_at) : formatTanggal(inv.tanggal)}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text-primary)' }}>Rp {toRupiah(grand)}</span>
+                          <button
+                            type="button"
+                            className={styles.btnAdd}
+                            style={{ padding: '6px 10px', fontSize: '11px', height: '28px', display: 'inline-flex', alignItems: 'center' }}
+                            onClick={() => {
+                              setForm({
+                                id: inv.id,
+                                noInvoice: inv.no_invoice,
+                                tanggal: inv.tanggal,
+                                namaPembeli: inv.nama_pembeli,
+                                items: (inv.invoice_items || []).map(it => ({
+                                  deskripsi: it.deskripsi,
+                                  harga: String(it.harga),
+                                  kuantitas: it.kuantitas
+                                })),
+                                ongkir: String(inv.ongkir),
+                                dp: String(inv.dp)
+                              });
+                              setView('preview');
+                            }}
+                          >
+                            👁️ Detail
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* ── FORM VIEW ── */}
       {view === 'form' && (
         <div className={styles.page}>
@@ -648,7 +802,10 @@ export default function InvoicePage() {
                         {/* Cell Kiri: Info Invoice (Lebih Lebar) */}
                         <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ fontWeight: '700', color: 'var(--green-500)', fontSize: '15px' }}>{inv.no_invoice}</span>
-                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Tanggal: {formatTanggal(inv.tanggal)}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                            Tanggal: {formatTanggal(inv.tanggal)}
+                            {inv.created_at && ` | Dibuat: ${formatDateTime(inv.created_at)}`}
+                          </span>
                           <span style={{ fontSize: '13px', fontWeight: '600' }}>Penerima: {inv.nama_pembeli}</span>
                           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Total: <strong>Rp {toRupiah(grand)}</strong></span>
                         </div>

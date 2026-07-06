@@ -14,6 +14,7 @@ export default function SidebarLayout({ children, currentView, onViewChange, onN
   };
 
   const navItems = [
+    { id: 'dashboard', name: '📊 Dashboard', active: currentView === 'dashboard' },
     { id: 'form', name: '📋 Invoice Generator', active: currentView === 'form' || currentView === 'preview' },
     { id: 'history', name: '📜 Riwayat Invoice', active: currentView === 'history' },
     { id: 'produk', name: '🌸 Kelola Produk', disabled: true, badge: 'Nanti' },
