@@ -192,6 +192,19 @@ export default function InvoicePage() {
   const subTotal = subTotalItems + ongkirNum;
   const grandTotal = subTotal - dpNum;
 
+  const handleFormKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      const tagName = e.target.tagName;
+      if (tagName === 'TEXTAREA') {
+        // Biarkan textarea membuat baris baru tapi cegah submit
+        e.stopPropagation();
+      } else {
+        // Cegah submit otomatis untuk input biasa
+        e.preventDefault();
+      }
+    }
+  };
+
   const handleGenerate = async (e) => {
     e.preventDefault();
 
@@ -348,7 +361,7 @@ export default function InvoicePage() {
             )}
           </div>
 
-          <form className={styles.formWrap} onSubmit={handleGenerate} noValidate>
+          <form className={styles.formWrap} onSubmit={handleGenerate} onKeyDown={handleFormKeyDown} noValidate>
             {/* Info Invoice */}
             <div className={styles.formCard}>
               <h2 className={styles.cardTitle}>📋 Info Invoice</h2>
