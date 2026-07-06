@@ -94,10 +94,10 @@ export default function SidebarLayout({ children, currentView, onViewChange, onN
     { id: 'dashboard', name: 'Dashboard', iconKey: 'dashboard', active: currentView === 'dashboard' },
     { id: 'form', name: 'Invoice Generator', iconKey: 'form', active: currentView === 'form' || currentView === 'preview' },
     { id: 'history', name: 'Riwayat Invoice', iconKey: 'history', active: currentView === 'history' },
-    { id: 'produk', name: 'Kelola Produk', iconKey: 'produk', disabled: true, badge: 'Nanti' },
-    { id: 'pelanggan', name: 'Data Pelanggan', iconKey: 'pelanggan', disabled: true, badge: 'Nanti' },
-    { id: 'laporan', name: 'Laporan Penjualan', iconKey: 'laporan', disabled: true, badge: 'Nanti' },
-    { id: 'pengaturan', name: 'Pengaturan', iconKey: 'pengaturan', disabled: true, badge: 'Nanti' },
+    { id: 'produk', name: 'Kelola Produk', iconKey: 'produk', disabled: true, badge: 'Coming Soon' },
+    { id: 'pelanggan', name: 'Data Pelanggan', iconKey: 'pelanggan', disabled: true, badge: 'Coming Soon' },
+    { id: 'laporan', name: 'Laporan Penjualan', iconKey: 'laporan', disabled: true, badge: 'Coming Soon' },
+    { id: 'pengaturan', name: 'Pengaturan', iconKey: 'pengaturan', disabled: true, badge: 'Coming Soon' },
   ];
 
   return (
