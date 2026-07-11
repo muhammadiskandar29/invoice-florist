@@ -470,7 +470,7 @@ export default function InvoicePage() {
 
             {/* Metrics Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', margin: '20px 0' }}>
-              
+
               {/* Card Pendapatan */}
               <div className={styles.formCard} style={{ margin: 0, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
                 <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>Pendapatan Bersih</span>
@@ -640,7 +640,8 @@ export default function InvoicePage() {
                   </div>
                   <div className={styles.fieldGroup}>
                     <label className={styles.label}>Deskripsi</label>
-                    <input id={`deskripsi-${i}`} className={styles.input} type="text"
+                    <textarea id={`deskripsi-${i}`} className={styles.input}
+                      style={{ minHeight: '60px', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', lineHeight: '1.4' }}
                       placeholder="Nama bunga / produk"
                       value={item.deskripsi} onChange={e => setItem(i, 'deskripsi', e.target.value)} />
                   </div>
@@ -804,7 +805,7 @@ export default function InvoicePage() {
                     <div key={i}>
                       {/* Deskripsi */}
                       <span className={styles.fieldCell}
-                        style={{ top: `${topPct}%`, left: '8.5%', right: '30%' }}>
+                        style={{ top: `${topPct}%`, left: '8.5%', right: '30%', whiteSpace: 'pre-wrap' }}>
                         {item.deskripsi}
                       </span>
                       {/* Harga */}
