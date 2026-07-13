@@ -17,8 +17,15 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true);
-    if (typeof window !== 'undefined' && sessionStorage.getItem('isLoggedIn') === 'true') {
-      router.replace('/invoice');
+    if (typeof window !== 'undefined') {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const expiry = parseInt(localStorage.getItem('loginExpiry') || '0', 10);
+      if (isLoggedIn && Date.now() < expiry) {
+        router.replace('/invoice');
+      } else {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('loginExpiry');
+      }
     }
   }, [router]);
 
@@ -38,7 +45,9 @@ export default function LoginPage() {
 
       const json = await response.json();
       if (json.success) {
-        sessionStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('isLoggedIn', 'true');
+        // Set expiry to 24 hours from now
+        localStorage.setItem('loginExpiry', String(Date.now() + 24 * 60 * 60 * 1000));
         router.push('/invoice');
       } else {
         setError(json.error || 'Username atau password salah. Coba lagi.');

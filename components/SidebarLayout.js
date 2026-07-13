@@ -86,7 +86,8 @@ export default function SidebarLayout({ children, currentView, onViewChange, onN
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
-    sessionStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('loginExpiry');
     router.replace('/');
   };
 

@@ -153,7 +153,15 @@ export default function InvoicePage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
-    if (sessionStorage.getItem('isLoggedIn') !== 'true') router.replace('/');
+    if (typeof window !== 'undefined') {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const expiry = parseInt(localStorage.getItem('loginExpiry') || '0', 10);
+      if (!isLoggedIn || Date.now() >= expiry) {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('loginExpiry');
+        router.replace('/');
+      }
+    }
   }, [router]);
 
   const [view, setView] = useState('dashboard');
@@ -439,7 +447,8 @@ export default function InvoicePage() {
   }, [form]);
 
   const handleLogout = () => {
-    sessionStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('loginExpiry');
     router.push('/');
   };
 
